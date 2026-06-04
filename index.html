@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>מיכל על המפה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --g1: #0f2010;
+  --g2: #1a3320;
+  --g3: #2d4a2d;
+  --g4: #3d6030;
+  --g5: #5a8a3a;
+  --g6: #7ab840;
+  --g7: #a8d060;
+  --g8: #c8e88a;
+  --cream: #f7f4ee;
+  --cream2: #ede8df;
+  --cream3: #e0d8c8;
+  --text1: #111a11;
+  --text2: #3a5020;
+  --text3: #6a8850;
+  --text4: #9aaa80;
+  --white: #ffffff;
+  --card-b: #dde8cc;
+  --visited-bg: #e8f5d0;
+  --visited-c: #2a5e10;
+  --r: 14px;
+  --rs: 10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Heebo',sans-serif;background:var(--cream2);color:var(--text1);min-height:100vh;display:flex;flex-direction:column;max-width:480px;margin:0 auto;}
+
+/* shimmer keyframe */
+@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes badgePop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+
+/* ── HEADER ── */
+.header{background:var(--g1);padding:14px 16px 12px;position:sticky;top:0;z-index:100;overflow:hidden;}
+.header::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(120deg,transparent,transparent 40px,rgba(122,184,64,.04) 40px,rgba(122,184,64,.04) 41px);pointer-events:none;}
+.header-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;position:relative;}
+.logo-img{height:44px;width:auto;border-radius:8px;object-fit:contain;flex-shrink:0;}
+.logo-fallback{height:44px;width:44px;border-radius:8px;background:rgba(122,184,64,.18);border:1px solid rgba(122,184,64,.35);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.logo-texts{flex:1;}
+.logo-text{font-size:17px;font-weight:700;color:#e8f4d8;letter-spacing:.2px;line-height:1.2;}
+.logo-sub{font-size:11px;color:var(--g7);margin-top:1px;}
+/* live dot */
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--g6);animation:pulse 2s infinite;margin-right:2px;}
+
+.search-wrap{position:relative;}
+.search-input{width:100%;background:rgba(255,255,255,.11);border:0.5px solid rgba(255,255,255,.18);border-radius:var(--rs);padding:10px 38px 10px 14px;font-size:14px;color:#e8f4d8;font-family:'Heebo',sans-serif;outline:none;transition:background .2s,border-color .2s;}
+.search-input::placeholder{color:rgba(232,244,216,.45);}
+.search-input:focus{background:rgba(255,255,255,.17);border-color:rgba(122,184,64,.5);}
+.search-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--g7);pointer-events:none;}
+.clear-btn{position:absolute;left:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;border-radius:50%;width:20px;height:20px;color:#e8f4d8;font-size:13px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1;}
+.clear-btn.show{display:flex;}
+
+/* ── FILTERS ── */
+.filters-wrap{background:var(--white);border-bottom:.5px solid var(--card-b);padding:9px 12px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;position:sticky;top:104px;z-index:90;}
+.filters-wrap::-webkit-scrollbar{display:none;}
+.chip{background:var(--cream);border:.5px solid var(--cream3);border-radius:20px;padding:6px 13px;font-size:12px;color:var(--text2);white-space:nowrap;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .15s;flex-shrink:0;}
+.chip.active{background:var(--g3);color:var(--g7);border-color:var(--g3);font-weight:600;}
+
+/* ── STATS ── */
+.stats-bar{display:flex;gap:8px;padding:12px 14px 6px;}
+.stat{flex:1;background:var(--white);border-radius:var(--rs);padding:10px 8px;text-align:center;border:.5px solid var(--card-b);position:relative;overflow:hidden;}
+.stat::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(168,208,96,.15),transparent);animation:shimmer 3s infinite linear;background-size:200% auto;}
+.stat-num{font-size:22px;font-weight:700;color:var(--g3);}
+.stat-label{font-size:10px;color:var(--text3);margin-top:1px;}
+
+/* ── SECTION ── */
+.section-title{padding:13px 14px 5px;font-size:10px;color:var(--text3);font-weight:600;letter-spacing:.7px;display:flex;align-items:center;gap:8px;}
+.section-title::after{content:'';flex:1;height:.5px;background:var(--card-b);}
+.section-count{background:var(--cream2);border-radius:20px;padding:2px 8px;font-size:10px;color:var(--text4);border:.5px solid var(--card-b);}
+
+/* ── CARD ── */
+.place-card{margin:0 14px 7px;background:var(--white);border-radius:var(--r);padding:12px 12px;border:.5px solid var(--card-b);display:flex;align-items:center;gap:10px;cursor:pointer;transition:transform .12s,box-shadow .12s;position:relative;overflow:hidden;animation:fadeSlideIn .25s ease both;}
+.place-card::before{content:'';position:absolute;right:0;top:0;bottom:0;width:3px;background:transparent;transition:background .2s,box-shadow .2s;}
+.place-card.visited::before{background:var(--g5);box-shadow:0 0 8px rgba(90,138,58,.6);}
+.place-card:active{transform:scale(.984);box-shadow:0 2px 10px rgba(30,60,20,.1);}
+
+/* shimmer on visited */
+.place-card.visited{background:linear-gradient(135deg,#fff 0%,#f5faee 100%);}
+
+.place-icon-wrap{width:42px;height:42px;border-radius:11px;background:linear-gradient(135deg,#eef5e4,#e0eccc);border:.5px solid #cde0b0;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px;transition:transform .15s;}
+.place-card:active .place-icon-wrap{transform:scale(.93);}
+.place-body{flex:1;min-width:0;}
+.place-name{font-size:14px;font-weight:600;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;}
+.place-type{font-size:11px;color:var(--text3);}
+.place-loc{font-size:11px;color:var(--text4);margin-top:2px;display:flex;align-items:center;gap:3px;}
+.place-loc svg{width:10px;height:10px;flex-shrink:0;}
+
+.badge{font-size:11px;padding:5px 10px;border-radius:20px;flex-shrink:0;font-weight:600;cursor:pointer;transition:all .15s;border:none;font-family:'Heebo',sans-serif;}
+.badge-visited{background:var(--visited-bg);color:var(--visited-c);box-shadow:0 0 0 1px rgba(90,138,58,.2);}
+.badge-not{background:#f0f0ea;color:#888878;}
+.badge:active{animation:badgePop .3s ease;}
+
+/* ── ADD BTN ── */
+.add-btn{margin:12px 14px 4px;background:var(--g3);border-radius:var(--r);padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--g7);font-size:14px;font-weight:600;font-family:'Heebo',sans-serif;border:none;cursor:pointer;width:calc(100% - 28px);transition:background .15s,box-shadow .15s;box-shadow:0 2px 12px rgba(45,74,45,.3);position:relative;overflow:hidden;}
+.add-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(168,208,96,.12),transparent);background-size:200% auto;animation:shimmer 2.5s infinite linear;}
+.add-btn:active{background:var(--g2);box-shadow:none;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:sticky;bottom:0;background:var(--white);border-top:.5px solid var(--card-b);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.nav-tab{flex:1;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--text4);cursor:pointer;border:none;background:none;font-family:'Heebo',sans-serif;transition:color .15s;}
+.nav-tab.active{color:var(--g3);font-weight:600;}
+.nav-tab svg{width:22px;height:22px;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(5,12,5,.65);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-sheet{background:var(--white);border-radius:20px 20px 0 0;padding:18px 16px 32px;width:100%;transform:translateY(100%);transition:transform .3s cubic-bezier(.34,1.4,.64,1);max-height:90vh;overflow-y:auto;}
+.modal-overlay.open .modal-sheet{transform:translateY(0);}
+.modal-handle{width:36px;height:4px;background:var(--cream3);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-size:17px;font-weight:700;color:var(--text1);margin-bottom:16px;}
+.form-group{margin-bottom:13px;}
+.form-label{font-size:12px;color:var(--text3);font-weight:500;margin-bottom:5px;display:block;}
+.form-input,.form-select{width:100%;padding:10px 13px;border:.5px solid var(--cream3);border-radius:var(--rs);font-size:14px;font-family:'Heebo',sans-serif;color:var(--text1);background:var(--cream);outline:none;transition:border-color .15s;appearance:none;-webkit-appearance:none;}
+.form-input:focus,.form-select:focus{border-color:var(--g5);}
+.form-row{display:flex;gap:10px;}
+.form-row .form-group{flex:1;}
+.submit-btn{width:100%;background:var(--g3);color:var(--g7);border:none;border-radius:var(--r);padding:14px;font-size:15px;font-weight:600;font-family:'Heebo',sans-serif;cursor:pointer;margin-top:4px;transition:background .15s;}
+.submit-btn:active{background:var(--g2);}
+
+/* ── BACKUP ── */
+.backup-btn{width:100%;padding:13px 16px;border-radius:var(--r);border:.5px solid var(--card-b);background:var(--cream);font-size:14px;font-family:'Heebo',sans-serif;color:var(--text1);cursor:pointer;margin-bottom:10px;display:flex;align-items:center;gap:10px;transition:background .15s;}
+.backup-btn:active{background:var(--cream2);}
+.backup-btn svg{width:20px;height:20px;color:var(--g3);flex-shrink:0;}
+
+/* ── MISC ── */
+.content{flex:1;padding-bottom:12px;}
+.no-results{text-align:center;padding:40px 20px;color:var(--text4);font-size:14px;display:none;}
+.search-highlight{background:rgba(122,184,64,.25);border-radius:2px;padding:0 1px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <img class="logo-img" src="logomuchal.jpg" alt="מיכל על המפה"
+         onerror="this.style.display='none';document.getElementById('logoFallback').style.display='flex'">
+    <div class="logo-fallback" id="logoFallback" style="display:none">🗺️</div>
+    <div class="logo-texts">
+      <div class="logo-text">מיכל על המפה</div>
+      <div class="logo-sub" style="display:flex;align-items:center;gap:5px;"><span class="live-dot"></span>מסעדות · קפה · בוטיק</div>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <input class="search-input" type="text" id="searchInput" placeholder="חיפוש לפי שם, עיר, אזור, סוג..." oninput="onSearch(this)">
+    <span class="search-icon">🔍</span>
+    <button class="clear-btn" id="clearBtn" onclick="clearSearch()">✕</button>
+  </div>
+</div>
+
+<div class="filters-wrap">
+  <div class="chip active" data-region="all" onclick="setRegion('all')">הכל</div>
+  <div class="chip" data-region="jerusalem" onclick="setRegion('jerusalem')">ירושלים</div>
+  <div class="chip" data-region="center" onclick="setRegion('center')">מרכז</div>
+  <div class="chip" data-region="north" onclick="setRegion('north')">צפון</div>
+  <div class="chip" data-region="south" onclick="setRegion('south')">דרום</div>
+  <div class="chip" data-region="yosh" onclick="setRegion('yosh')">איו"ש</div>
+</div>
+
+<div class="content">
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num" id="statTotal">0</div><div class="stat-label">מקומות</div></div>
+    <div class="stat"><div class="stat-num" id="statVisited">0</div><div class="stat-label">ביקרנו</div></div>
+    <div class="stat"><div class="stat-num" id="statLeft">0</div><div class="stat-label">לגלות</div></div>
+  </div>
+  <div id="placesList"></div>
+  <div class="no-results" id="noResults">לא נמצאו מקומות 🌿<br><small>נסי מילה אחרת</small></div>
+  <button class="add-btn" onclick="openAddModal()">＋ &nbsp;הוספת מקום חדש</button>
+</div>
+
+<div class="bottom-nav">
+  <button class="nav-tab active" onclick="showTab(0)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    רשימה
+  </button>
+  <button class="nav-tab" onclick="showTab(1)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L12 14M12 14L8 10M12 14L16 10"/><path d="M20 16v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2"/></svg>
+    גיבוי
+  </button>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="addModal" onclick="closeOnOverlay(event,'addModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">➕ הוספת מקום חדש</div>
+    <div class="form-group">
+      <label class="form-label">שם המקום *</label>
+      <input class="form-input" type="text" id="newName" placeholder="למשל: קפה הגינה">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">אזור *</label>
+        <select class="form-select" id="newRegion">
+          <option value="">בחרי אזור</option>
+          <option value="jerusalem">ירושלים וסביבתה</option>
+          <option value="center">מרכז, שרון ושפלה</option>
+          <option value="north">צפון, חיפה והעמקים</option>
+          <option value="south">דרום ונגב</option>
+          <option value="yosh">יהודה ושומרון</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">עיר / ישוב</label>
+        <input class="form-input" type="text" id="newCity" placeholder="למשל: ירושלים">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">סוג מקום</label>
+        <select class="form-select" id="newType">
+          <option value="">בחרי סוג</option>
+          <option value="מסעדה">מסעדה</option>
+          <option value="בית קפה">בית קפה</option>
+          <option value="עגלת קפה">עגלת קפה</option>
+          <option value="קונדיטוריה">קונדיטוריה</option>
+          <option value="גלידה">גלידה</option>
+          <option value="יקב">יקב</option>
+          <option value="אטרקציה">אטרקציה / טבע</option>
+          <option value="אחר">אחר</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">כשרות</label>
+        <select class="form-select" id="newKosher">
+          <option value="">לא צוין</option>
+          <option value="כשר">כשר</option>
+          <option value="מהדרין">מהדרין</option>
+          <option value="לא כשר">לא כשר</option>
+          <option value="חלבי">חלבי</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">מיקום / כתובת</label>
+      <input class="form-input" type="text" id="newLocation" placeholder="למשל: על כביש 1, ליד אבו גוש">
+    </div>
+    <div class="form-group">
+      <label class="form-label">הערות</label>
+      <input class="form-input" type="text" id="newNotes" placeholder='למשל: רק בסופ"ש, כדאי להזמין מראש'>
+    </div>
+    <button class="submit-btn" onclick="addPlace()">הוספה לרשימה</button>
+  </div>
+</div>
+
+<!-- BACKUP MODAL -->
+<div class="modal-overlay" id="backupModal" onclick="closeOnOverlay(event,'backupModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💾 גיבוי ושחזור</div>
+    <button class="backup-btn" onclick="exportData()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v12M12 14l-4-4M12 14l4-4"/><path d="M20 16v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2"/></svg>
+      ייצוא לקובץ גיבוי (JSON)
+    </button>
+    <label class="backup-btn" style="cursor:pointer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22V10M12 10l-4 4M12 10l4 4"/><path d="M20 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2"/></svg>
+      ייבוא מקובץ גיבוי
+      <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+    </label>
+    <div style="font-size:12px;color:var(--text4);margin-top:8px;line-height:1.6;text-align:center;">
+      הגיבוי שומר את כל המקומות, הסימונים והתוספות שלך.<br>כדאי לשמור בגוגל דרייב או לשלוח לעצמך בווטסאפ.
+    </div>
+  </div>
+</div>
+
+<script>
+const REGIONS={jerusalem:'ירושלים וסביבתה',center:'מרכז, שרון ושפלה',north:'צפון, חיפה והעמקים',south:'דרום ונגב',yosh:'יהודה ושומרון'};
+const ICONS={'מסעדה':'🍽️','בית קפה':'☕','עגלת קפה':'☕','קונדיטוריה':'🥐','גלידה':'🍦','יקב':'🍷','אטרקציה':'🌿','אחר':'📍','default':'📍'};
+
+const DEFAULT_PLACES=[
+  {id:1,name:'אבי לוי המוציא',region:'jerusalem',city:'ירושלים',type:'מסעדה',kosher:'',location:'',notes:'מסעדת שף בשרית',visited:false},
+  {id:2,name:'פלומינו',region:'jerusalem',city:'ירושלים',type:'מסעדה',kosher:'',location:'',notes:'מסעדה איטלקית',visited:false},
+  {id:3,name:'דוד 16',region:'jerusalem',city:'ירושלים',type:'מסעדה',kosher:'',location:'',notes:'מסעדת שף',visited:false},
+  {id:4,name:'שדרות בן מימון 1',region:'jerusalem',city:'ירושלים',type:'מסעדה',kosher:'',location:'',notes:'מסעדה מרוקאית',visited:false},
+  {id:5,name:'ג\'וני קובנה',region:'jerusalem',city:'ירושלים',type:'מסעדה',kosher:'',location:'שוק מחנה יהודה',notes:'',visited:false},
+  {id:6,name:'פיצה פצ\'יאני',region:'jerusalem',city:'ירושלים',type:'מסעדה',kosher:'',location:'שוק מחנה יהודה',notes:'',visited:false},
+  {id:7,name:'נונה',region:'jerusalem',city:'ירושלים',type:'מסעדה',kosher:'',location:'שוק מחנה יהודה',notes:'',visited:false},
+  {id:8,name:'מיס אנד מור',region:'jerusalem',city:'ירושלים',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:9,name:'גלידה מוסלין',region:'jerusalem',city:'ירושלים',type:'גלידה',kosher:'',location:'',notes:'גלידת בוטיק',visited:false},
+  {id:10,name:'קונדיטורית עונג',region:'jerusalem',city:'ירושלים',type:'קונדיטוריה',kosher:'',location:'',notes:'מאפה ירושלמי קלאסי',visited:false},
+  {id:11,name:'קפה בארזה',region:'jerusalem',city:'ירושלים',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:12,name:'קפה המגדל',region:'jerusalem',city:'ירושלים',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:13,name:'בירמה קפה',region:'jerusalem',city:'ירושלים',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:14,name:'ו רניר',region:'jerusalem',city:'ירושלים',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:15,name:'ירושלים ADHD',region:'jerusalem',city:'ירושלים',type:'בית קפה',kosher:'',location:'',notes:'בר אופנתי',visited:false},
+  {id:16,name:'מולה בוטני',region:'jerusalem',city:'ירושלים',type:'בית קפה',kosher:'',location:'מול הגן הבוטני',notes:'',visited:false},
+  {id:17,name:'קפה לאטה',region:'jerusalem',city:'פסגת זאב',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:18,name:'קפה עין כרם',region:'jerusalem',city:'עין כרם',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:19,name:'גריל בר',region:'jerusalem',city:'מבשרת ציון',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:20,name:'לוציאנה',region:'jerusalem',city:'מבשרת ציון',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:21,name:'מוצאלה מוצא',region:'jerusalem',city:'מוצא',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:22,name:'בין המטעים',region:'jerusalem',city:'קיבוץ רמת רחל',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:23,name:'פו אפ',region:'jerusalem',city:'קרית ענבים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:24,name:'נורה',region:'jerusalem',city:'קרית ענבים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:25,name:'עין חמד',region:'jerusalem',city:'פארק עין חמד',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:26,name:'חמד החורשה',region:'jerusalem',city:'פארק עין חמד',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:27,name:'משתלה יום שישי',region:'jerusalem',city:'מושב נס הרים',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:28,name:'קפה פלורה',region:'jerusalem',city:'מושב נס הרים',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:29,name:'וילה טוקה',region:'jerusalem',city:'מושב אדרת',type:'מסעדה',kosher:'',location:'עמק האלה',notes:'',visited:false},
+  {id:30,name:'בית הבד',region:'jerusalem',city:'עמק האלה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:31,name:'גבעת תורמוסים',region:'jerusalem',city:'עמק האלה',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:32,name:'נבו',region:'jerusalem',city:'מושב מטע',type:'יקב',kosher:'',location:'',notes:'יקב ומסעדה',visited:false},
+  {id:33,name:'קפה נחשון',region:'jerusalem',city:'קיבוץ נחשון',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:34,name:'משק אלוני',region:'jerusalem',city:'מושב בקוע',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:35,name:'אחוזת תמר',region:'jerusalem',city:'בית שמש',type:'אחר',kosher:'',location:'',notes:'מתחם אירוח',visited:false},
+  {id:36,name:'אלפרדו',region:'center',city:'פתח תקווה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:37,name:'חברים',region:'center',city:'פתח תקווה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:38,name:'דוניס מחפוד',region:'center',city:'פתח תקווה',type:'מסעדה',kosher:'חלבי',location:'',notes:'',visited:false},
+  {id:39,name:'ויוניו',region:'center',city:'פתח תקווה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:40,name:'הולה',region:'center',city:'פתח תקווה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:41,name:'פיצה פיאדרה',region:'center',city:'פתח תקווה',type:'מסעדה',kosher:'חלבי',location:'',notes:'',visited:false},
+  {id:42,name:'פיקאסו',region:'center',city:'פתח תקווה',type:'מסעדה',kosher:'מהדרין',location:'',notes:'',visited:false},
+  {id:43,name:'ריקו המבורגר',region:'center',city:'פתח תקווה',type:'מסעדה',kosher:'מהדרין',location:'',notes:'',visited:false},
+  {id:44,name:'בציר',region:'center',city:'בני ברק',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:45,name:'מפגש חברים',region:'center',city:'בני ברק',type:'מסעדה',kosher:'',location:'רחוב ז\'בוטינסקי',notes:'',visited:false},
+  {id:46,name:'רג\'ינה',region:'center',city:'תל אביב',type:'מסעדה',kosher:'',location:'מתחם התחנה',notes:'',visited:false},
+  {id:47,name:'מסעדת מנרה',region:'center',city:'תל אביב',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:48,name:'ניניו',region:'center',city:'תל אביב',type:'מסעדה',kosher:'מהדרין',location:'',notes:'חלבית',visited:false},
+  {id:49,name:'קפה לוגאנו',region:'center',city:'רמת גן',type:'בית קפה',kosher:'',location:'רמת אפעל',notes:'',visited:false},
+  {id:50,name:'קפה קוואלי',region:'center',city:'חולון',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:51,name:'הפארק הלאומי עגלה',region:'center',city:'רמת גן',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:52,name:'על המים',region:'center',city:'הרצליה',type:'מסעדה',kosher:'מהדרין',location:'',notes:'חלבי',visited:false},
+  {id:53,name:'גן רשל',region:'center',city:'הרצליה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:54,name:'קאופמן וכהן',region:'center',city:'הרצליה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:55,name:'מדמוזל',region:'center',city:'הרצליה',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:56,name:'זואי',region:'center',city:'כפר סבא',type:'מסעדה',kosher:'',location:'',notes:'יוונית',visited:false},
+  {id:57,name:'סוס קפה',region:'center',city:'כפר סבא',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:58,name:'היקב',region:'center',city:'נתניה',type:'יקב',kosher:'',location:'',notes:'',visited:false},
+  {id:59,name:'קפה וים',region:'center',city:'חוף שפיים',type:'בית קפה',kosher:'',location:'בין נתניה להרצליה',notes:'',visited:false},
+  {id:60,name:'מתחם הסילו',region:'center',city:'הוד השרון',type:'אחר',kosher:'',location:'',notes:'',visited:false},
+  {id:61,name:'נולי סביון',region:'center',city:'סביון',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:62,name:'סולנטו בשרון',region:'center',city:'השרון',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:63,name:'גילתי',region:'center',city:'השרון',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:64,name:'סאן קפה',region:'center',city:'מושב בצרה',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:65,name:'לוטי פאטיסרי',region:'center',city:'אבן יהודה',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:66,name:'זלדה',region:'center',city:'מושב נווה ירק',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:67,name:'קפה נעה',region:'center',city:'בת חפר',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:68,name:'בר ברסקו',region:'center',city:'מודיעין',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:69,name:'ג\'פטו בר',region:'center',city:'מודיעין',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:70,name:'הנכד',region:'center',city:'מודיעין',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:71,name:'ברד רנד פטר',region:'center',city:'מודיעין',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:72,name:'הלחם והחמאה',region:'center',city:'מודיעין',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:73,name:'אגמא',region:'center',city:'ראש העין',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:74,name:'מגדל צדק',region:'center',city:'ראש העין',type:'אטרקציה',kosher:'',location:'גן לאומי',notes:'',visited:false},
+  {id:75,name:'עגלת קפה קטרינה',region:'center',city:'כפר דניאל',type:'עגלת קפה',kosher:'',location:'ליד מודיעין',notes:'',visited:false},
+  {id:76,name:'איכר הארץ',region:'center',city:'מושב בית נקופה',type:'מסעדה',kosher:'',location:'על כביש 1',notes:'',visited:false},
+  {id:77,name:'נאיה סושי',region:'center',city:'מושב בית נקופה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:78,name:'לאבוסטן',region:'center',city:'מושב מזור',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:79,name:'לה מאיה',region:'center',city:'מושב מזור',type:'מסעדה',kosher:'מהדרין',location:'',notes:'',visited:false},
+  {id:80,name:'אינגלה',region:'center',city:'מושב נחלים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:81,name:'קפה מיקה',region:'center',city:'רחובות',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:82,name:'ויצק',region:'center',city:'רחובות',type:'מסעדה',kosher:'כשר',location:'',notes:'',visited:false},
+  {id:83,name:'קפה פונטיין',region:'center',city:'נס ציונה',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:84,name:'יוענה',region:'center',city:'באר יעקב',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:85,name:'אלה',region:'center',city:'באר יעקב',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:86,name:'אוליב',region:'center',city:'באר יעקב',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:87,name:'קפה מרי',region:'center',city:'באר יעקב',type:'בית קפה',kosher:'כשר',location:'',notes:'',visited:false},
+  {id:88,name:'משק לוי עגלה',region:'center',city:'ליד יבנה',type:'עגלת קפה',kosher:'',location:'כביש 411',notes:'',visited:false},
+  {id:89,name:'עלמה',region:'center',city:'מושב יד רמב"ם',type:'מסעדה',kosher:'',location:'מועצה אזורית גזר',notes:'',visited:false},
+  {id:90,name:'הבית התימני',region:'center',city:'גדרה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:91,name:'גבעת הרקפות',region:'center',city:'תל שחר',type:'אטרקציה',kosher:'',location:'שפלה',notes:'',visited:false},
+  {id:92,name:'מצפה MSH',region:'center',city:'מושב משמר איילון',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:93,name:'קפה זיגו',region:'north',city:'זכרון יעקב',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:94,name:'נילי',region:'north',city:'זכרון יעקב',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:95,name:'סוויטות הגפן 1884',region:'north',city:'זכרון יעקב',type:'אחר',kosher:'',location:'',notes:'',visited:false},
+  {id:96,name:'הסולם',region:'north',city:'פרדס חנה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:97,name:'שפיק קונדיטוריה',region:'north',city:'דלית אל כרמל',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:98,name:'פסיפלורה',region:'north',city:'ליד חיפה',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:99,name:'בולר קפה',region:'north',city:'יקנעם',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:100,name:'עמק השלום',region:'north',city:'יקנעם',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:101,name:'ברטה קפה',region:'north',city:'קרית טבעון',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:102,name:'על הקצה',region:'north',city:'קרית טבעון',type:'מסעדה',kosher:'לא כשר',location:'',notes:'נוף מהמם',visited:false},
+  {id:103,name:'מנחת מגידו',region:'north',city:'עמק יזרעאל',type:'אטרקציה',kosher:'',location:'',notes:'פריחה',visited:false},
+  {id:104,name:'מדרך עוז',region:'north',city:'רמות מנשה',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:105,name:'נחל גחר',region:'north',city:'רמות מנשה',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:106,name:'בזיליה',region:'north',city:'בית שאן',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:107,name:'עיינה',region:'north',city:'קיבוץ עין הנציב',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:108,name:'חורשת גדעון',region:'north',city:'עמק המעיינות',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:109,name:'מעיין הסוסים',region:'north',city:'עמק המעיינות',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:110,name:'נחל אסי',region:'north',city:'עמק המעיינות',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:111,name:'זוזה פטיסרי',region:'north',city:'טבריה',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:112,name:'פיצה שירה',region:'north',city:'מושב ארבל',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:113,name:'קרני חיטין',region:'north',city:'ליד כנרת',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:114,name:'לול ארט',region:'north',city:'מושב רמות',type:'אחר',kosher:'',location:'רמת הגולן',notes:'',visited:false},
+  {id:115,name:'יעקב בייגלה',region:'north',city:'צפת',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:116,name:'שרונה ספסופה',region:'north',city:'מושב ספסופה',type:'מסעדה',kosher:'',location:'ליד מירון',notes:'',visited:false},
+  {id:117,name:'מקום יפה לקפה',region:'north',city:'מושב כחל',type:'בית קפה',kosher:'',location:'גליל עליון',notes:'',visited:false},
+  {id:118,name:'תהיללוש',region:'north',city:'אור הגנוז',type:'מסעדה',kosher:'',location:'ליד מירון',notes:'',visited:false},
+  {id:119,name:'פיקואל',region:'south',city:'ראשון לציון',type:'מסעדה',kosher:'מהדרין',location:'',notes:'',visited:false},
+  {id:120,name:'פנה בייקרי',region:'south',city:'ראשון לציון',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:121,name:'ברד בייקרי',region:'south',city:'ראשון לציון',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:122,name:'עלמא',region:'south',city:'אשדוד',type:'מסעדה',kosher:'כשר',location:'',notes:'',visited:false},
+  {id:123,name:'ביץ סייד המצודה',region:'south',city:'אשדוד',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:124,name:'בזילקה',region:'south',city:'אשקלון',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:125,name:'בום בר',region:'south',city:'אשקלון',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:126,name:'הוסט האוס',region:'south',city:'מושב הודיה',type:'מסעדה',kosher:'',location:'ליד אשקלון',notes:'',visited:false},
+  {id:127,name:'לוצאנה',region:'south',city:'מושב גיאה',type:'מסעדה',kosher:'',location:'ליד אשקלון',notes:'',visited:false},
+  {id:128,name:'ברברה',region:'south',city:'מושב ברכיה',type:'מסעדה',kosher:'',location:'ליד אשקלון',notes:'',visited:false},
+  {id:129,name:'קפרזה',region:'south',city:'קרית גת',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:130,name:'פאוזה',region:'south',city:'מושב אבן שמואל',type:'מסעדה',kosher:'',location:'ליד קרית גת',notes:'',visited:false},
+  {id:131,name:'ליצי בייקרי',region:'south',city:'מושב עין צורים',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:132,name:'קפה נינו',region:'south',city:'מושב באר טוביה',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:133,name:'צארליז',region:'south',city:'מושב ניר בנים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:134,name:'רפתא',region:'south',city:'מושב מנוחה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:135,name:'לכישה',region:'south',city:'חבל לכיש',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:136,name:'מושב אחוזם',region:'south',city:'דרומית לקרית גת',type:'מסעדה',kosher:'',location:'',notes:'פיצות בלילה',visited:false},
+  {id:137,name:'קונדיטוריה ניחוחות',region:'south',city:'נתיבות',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:138,name:'קפה קוני',region:'south',city:'אופקים',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:139,name:'אוריוס',region:'south',city:'שדרות',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:140,name:'גאולה בר תקומה',region:'south',city:'מושב תקומה',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:141,name:'פרקש פטיסיירי',region:'south',city:'מושב תקומה',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:142,name:'מור קפה',region:'south',city:'קיבוץ עלומים',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:143,name:'משתלת עץ הזית',region:'south',city:'מושב זמרת',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:144,name:'יער שוקדה',region:'south',city:'עוטף עזה',type:'אטרקציה',kosher:'',location:'',notes:'פריחה',visited:false},
+  {id:145,name:'באר מרווה',region:'south',city:'עוטף עזה',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:146,name:'אינתא',region:'south',city:'הדרום',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:147,name:'פדושקה',region:'south',city:'הדרום',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:148,name:'שישו גני טל',region:'south',city:'גני טל',type:'אטרקציה',kosher:'',location:'ליד גדרה',notes:'ליד חוות סוסים',visited:false},
+  {id:149,name:'רוחמה גני טל',region:'south',city:'גני טל',type:'אטרקציה',kosher:'',location:'ליד גדרה',notes:'',visited:false},
+  {id:150,name:'הדבשת',region:'south',city:'באר שבע',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:151,name:'לשה',region:'south',city:'מצפה רמון',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:152,name:'בדרך לאילת מצפה רמון',region:'south',city:'מצפה רמון',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:153,name:'קפה קיבוץ',region:'south',city:'מצפה רמון',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:154,name:'נחל קרקש',region:'south',city:'ליד שדה בוקר',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:155,name:'עצירה עין התמר',region:'south',city:'מושב עין התמר',type:'מסעדה',kosher:'',location:'דרום ים המלח',notes:'',visited:false},
+  {id:156,name:'קפה 430',region:'south',city:'אזור ים המלח',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:157,name:'אלימי קונדיטוריה',region:'south',city:'אילת',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:158,name:'מאפית רויטמן',region:'south',city:'אילת',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false},
+  {id:159,name:'חוות קשואלה',region:'yosh',city:'גוש עציון',type:'אחר',kosher:'',location:'',notes:'',visited:false},
+  {id:160,name:'עוז וגאון',region:'yosh',city:'גוש עציון',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:161,name:'פני קדם',region:'yosh',city:'גוש עציון',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:162,name:'מערת חריטון',region:'yosh',city:'גוש עציון',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:163,name:'שכשוכיות נוקדים',region:'yosh',city:'נוקדים',type:'אטרקציה',kosher:'',location:'מדבר יהודה',notes:'',visited:false},
+  {id:164,name:'יער תקוע',region:'yosh',city:'גוש עציון',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false},
+  {id:165,name:'יקב פסגות',region:'yosh',city:'שער בנימין',type:'יקב',kosher:'',location:'',notes:'',visited:false},
+  {id:166,name:'יקב גת שומרון',region:'yosh',city:'קרני שומרון',type:'יקב',kosher:'',location:'',notes:'',visited:false},
+  {id:167,name:'קפה יהודה',region:'yosh',city:'בית חורון',type:'בית קפה',kosher:'',location:'כביש 443',notes:'',visited:false},
+  {id:168,name:'קדמא קפה',region:'yosh',city:'סוסיא',type:'בית קפה',kosher:'',location:'דרום הר חברון',notes:'',visited:false},
+  {id:169,name:'לאגו',region:'yosh',city:'מעלה אדומים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:170,name:'הפרדס',region:'yosh',city:'מעלה אדומים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:171,name:'קפה בקצה',region:'yosh',city:'מצפה יריחו',type:'בית קפה',kosher:'',location:'',notes:'',visited:false},
+  {id:172,name:'פרסיליה',region:'yosh',city:'כפר אדומים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false},
+  {id:173,name:'קאסה וינה',region:'yosh',city:'גבעת זאב',type:'יקב',kosher:'',location:'',notes:'',visited:false},
+  {id:174,name:'פיצה אלמורה',region:'yosh',city:'גבעת זאב',type:'מסעדה',kosher:'',location:'',notes:'',visited:false}
+];
+
+// ── STATE ──
+let places=[], activeRegion='all';
+
+function norm(s){return(s||'').toLowerCase().replace(/[״׳"']/g,'').trim();}
+
+function loadData(){
+  const saved=localStorage.getItem('michal_map_v4');
+  if(saved){try{places=JSON.parse(saved);}catch(e){places=[...DEFAULT_PLACES];}}
+  else{places=DEFAULT_PLACES.map(p=>({...p}));saveData();}
+}
+function saveData(){localStorage.setItem('michal_map_v4',JSON.stringify(places));}
+
+function setRegion(r){
+  activeRegion=r;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.region===r));
+  renderAll();
+}
+
+function onSearch(el){
+  document.getElementById('clearBtn').classList.toggle('show',el.value.length>0);
+  renderAll();
+}
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('clearBtn').classList.remove('show');
+  renderAll();
+}
+
+function getFiltered(){
+  const raw=document.getElementById('searchInput').value;
+  const q=norm(raw);
+  return places.filter(p=>{
+    if(activeRegion!=='all' && p.region!==activeRegion) return false;
+    if(!q) return true;
+    // search across ALL text fields
+    return norm(p.name).includes(q)
+      || norm(p.city).includes(q)
+      || norm(p.type).includes(q)
+      || norm(p.kosher).includes(q)
+      || norm(p.location).includes(q)
+      || norm(p.notes).includes(q)
+      || norm(REGIONS[p.region]).includes(q);
+  });
+}
+
+function highlight(text, q){
+  if(!q||!text) return text||'';
+  const idx=norm(text).indexOf(norm(q));
+  if(idx<0) return text;
+  return text.slice(0,idx)+'<mark class="search-highlight">'+text.slice(idx,idx+q.length)+'</mark>'+text.slice(idx+q.length);
+}
+
+function toggleVisited(id,e){
+  e.stopPropagation();
+  const p=places.find(x=>x.id===id);
+  if(p){p.visited=!p.visited;saveData();renderAll();}
+}
+
+function renderAll(){
+  const filtered=getFiltered();
+  const q=document.getElementById('searchInput').value;
+  document.getElementById('statTotal').textContent=places.length;
+  document.getElementById('statVisited').textContent=places.filter(p=>p.visited).length;
+  document.getElementById('statLeft').textContent=places.filter(p=>!p.visited).length;
+
+  const list=document.getElementById('placesList');
+  const noRes=document.getElementById('noResults');
+  if(!filtered.length){list.innerHTML='';noRes.style.display='block';return;}
+  noRes.style.display='none';
+
+  const regionOrder=['jerusalem','center','north','south','yosh'];
+  const grouped={};
+  filtered.forEach(p=>{if(!grouped[p.region])grouped[p.region]=[];grouped[p.region].push(p);});
+
+  let html='';
+  regionOrder.forEach(r=>{
+    if(!grouped[r]) return;
+    html+=`<div class="section-title">${REGIONS[r]}<span class="section-count">${grouped[r].length}</span></div>`;
+    grouped[r].forEach((p,i)=>{
+      const badge=p.visited
+        ?`<button class="badge badge-visited" onclick="toggleVisited(${p.id},event)">✓ היינו</button>`
+        :`<button class="badge badge-not" onclick="toggleVisited(${p.id},event)">עוד לא</button>`;
+      const loc=[p.city,p.location].filter(Boolean).join(' · ');
+      const locHtml=loc?`<div class="place-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>${highlight(loc,q)}</div>`:'';
+      const typeStr=[p.type,p.kosher].filter(Boolean).join(' · ');
+      const notes=p.notes?` · ${p.notes}`:'';
+      html+=`<div class="place-card ${p.visited?'visited':''}" style="animation-delay:${i*0.03}s">
+        <div class="place-icon-wrap">${ICONS[p.type]||ICONS.default}</div>
+        <div class="place-body">
+          <div class="place-name">${highlight(p.name,q)}</div>
+          <div class="place-type">${highlight(typeStr,q)}${notes}</div>
+          ${locHtml}
+        </div>
+        ${badge}
+      </div>`;
+    });
+  });
+  list.innerHTML=html;
+}
+
+// ── ADD ──
+function openAddModal(){
+  ['newName','newCity','newLocation','newNotes'].forEach(id=>document.getElementById(id).value='');
+  ['newRegion','newType','newKosher'].forEach(id=>document.getElementById(id).value='');
+  openModal('addModal');
+}
+function addPlace(){
+  const name=document.getElementById('newName').value.trim();
+  const region=document.getElementById('newRegion').value;
+  if(!name||!region){alert('נא למלא שם ואזור');return;}
+  places.push({
+    id:Date.now(),name,region,
+    city:document.getElementById('newCity').value.trim(),
+    type:document.getElementById('newType').value,
+    kosher:document.getElementById('newKosher').value,
+    location:document.getElementById('newLocation').value.trim(),
+    notes:document.getElementById('newNotes').value.trim(),
+    visited:false
+  });
+  saveData();closeModal('addModal');setRegion(region);
+}
+
+// ── BACKUP ──
+function exportData(){
+  const d=new Date();
+  const blob=new Blob([JSON.stringify(places,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`מיכל-על-המפה-${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}.json`;
+  a.click();URL.revokeObjectURL(url);
+  closeModal('backupModal');
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(Array.isArray(data)){places=data;saveData();renderAll();closeModal('backupModal');alert('✅ הרשימה שוחזרה בהצלחה!');}
+    }catch{alert('שגיאה בקריאת הקובץ');}
+  };
+  reader.readAsText(file);
+}
+
+// ── MODALS ──
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function closeOnOverlay(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+function showTab(i){
+  document.querySelectorAll('.nav-tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+  if(i===1)openModal('backupModal');
+}
+
+loadData();
+renderAll();
+</script>
+</body>
+</html>
