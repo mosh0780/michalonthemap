@@ -100,9 +100,10 @@ body{font-family:'Heebo',sans-serif;background:var(--cream2);color:var(--text1);
 .badge:active{animation:badgePop .3s ease;}
 
 /* ── ADD BTN ── */
-.add-btn{margin:12px 14px 4px;background:var(--g3);border-radius:var(--r);padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--g7);font-size:14px;font-weight:600;font-family:'Heebo',sans-serif;border:none;cursor:pointer;width:calc(100% - 28px);transition:background .15s,box-shadow .15s;box-shadow:0 2px 12px rgba(45,74,45,.3);position:relative;overflow:hidden;}
-.add-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(168,208,96,.12),transparent);background-size:200% auto;animation:shimmer 2.5s infinite linear;}
-.add-btn:active{background:var(--g2);box-shadow:none;}
+.add-btn{position:fixed;left:18px;bottom:80px;width:54px;height:54px;border-radius:50%;background:var(--g3);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(30,60,20,.35),0 0 0 3px rgba(122,184,64,.2);z-index:150;transition:transform .15s,box-shadow .15s;overflow:hidden;}
+.add-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(168,208,96,.2),transparent);background-size:200% auto;animation:shimmer 2.5s infinite linear;}
+.add-btn:active{transform:scale(.92);box-shadow:0 2px 8px rgba(30,60,20,.3);}
+.add-btn span{font-size:26px;color:var(--g7);line-height:1;position:relative;z-index:1;}
 
 /* ── BOTTOM NAV ── */
 .bottom-nav{position:sticky;bottom:0;background:var(--white);border-top:.5px solid var(--card-b);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
@@ -173,7 +174,7 @@ body{font-family:'Heebo',sans-serif;background:var(--cream2);color:var(--text1);
   </div>
   <div id="placesList"></div>
   <div class="no-results" id="noResults">לא נמצאו מקומות 🌿<br><small>נסי מילה אחרת</small></div>
-  <button class="add-btn" onclick="openAddModal()">＋ &nbsp;הוספת מקום חדש</button>
+  <button class="add-btn" onclick="openAddModal()" title="הוספת מקום חדש"><span>＋</span></button>
 </div>
 
 <div class="bottom-nav">
