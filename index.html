@@ -348,8 +348,8 @@ const DP=[
   {id:22,name:'בין המטעים',region:'jerusalem',city:'קיבוץ רמת רחל',type:'מסעדה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:23,name:'פו אפ',region:'jerusalem',city:'קרית ענבים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:24,name:'נורה',region:'jerusalem',city:'קרית ענבים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
-  {id:25,name:'עין חמד',region:'jerusalem',city:'פארק עין חמד',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
-  {id:26,name:'חמד החורשה',region:'jerusalem',city:'פארק עין חמד',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
+  {id:25,name:'עין חמד',region:'jerusalem',city:'פארק עין חמד',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:'https://youtube.com/shorts/6b9oLpZhh6s?feature=shared'},
+  {id:26,name:'חמד החורשה',region:'jerusalem',city:'פארק עין חמד',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:'https://youtube.com/shorts/-8t7HruDu14?feature=shared'},
   {id:27,name:'משתלה יום שישי',region:'jerusalem',city:'מושב נס הרים',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:28,name:'קפה פלורה',region:'jerusalem',city:'מושב נס הרים',type:'בית קפה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:29,name:'וילה טוקה',region:'jerusalem',city:'מושב אדרת',type:'מסעדה',kosher:'',location:'עמק האלה',notes:'',visited:false,fav:false,soon:false,youtube:''},
@@ -404,7 +404,7 @@ const DP=[
   {id:78,name:'לאבוסטן',region:'center',city:'מושב מזור',type:'מסעדה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:79,name:'לה מאיה',region:'center',city:'מושב מזור',type:'מסעדה',kosher:'מהדרין',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:80,name:'אינגלה',region:'center',city:'מושב נחלים',type:'מסעדה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
-  {id:81,name:'קפה מיקה',region:'center',city:'רחובות',type:'בית קפה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
+  {id:81,name:'קפה מיקה',region:'center',city:'רחובות',type:'בית קפה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:'https://youtube.com/shorts/vi7q7jUPJ5w?feature=shared'},
   {id:82,name:'ויצק',region:'center',city:'רחובות',type:'מסעדה',kosher:'כשר',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:83,name:'קפה פונטיין',region:'center',city:'נס ציונה',type:'בית קפה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:84,name:'יוענה',region:'center',city:'באר יעקב',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
@@ -436,7 +436,7 @@ const DP=[
   {id:110,name:'נחל אסי',region:'north',city:'עמק המעיינות',type:'אטרקציה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:111,name:'זוזה פטיסרי',region:'north',city:'טבריה',type:'קונדיטוריה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:112,name:'פיצה שירה',region:'north',city:'מושב ארבל',type:'מסעדה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
-  {id:113,name:'קרני חיטין',region:'north',city:'ליד כנרת',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
+  {id:113,name:'קרני חיטין',region:'north',city:'ליד כנרת',type:'עגלת קפה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:'https://youtube.com/shorts/3P_rAzqC1EU?feature=shared'},
   {id:114,name:'לול ארט',region:'north',city:'מושב רמות',type:'אחר',kosher:'',location:'רמת הגולן',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:115,name:'יעקב בייגלה',region:'north',city:'צפת',type:'בית קפה',kosher:'',location:'',notes:'',visited:false,fav:false,soon:false,youtube:''},
   {id:116,name:'שרונה ספסופה',region:'north',city:'מושב ספסופה',type:'מסעדה',kosher:'',location:'ליד מירון',notes:'',visited:false,fav:false,soon:false,youtube:''},
@@ -557,7 +557,7 @@ function toggleCard(id){
 
 function openYoutube(url,e){
   e.stopPropagation();
-  window.open(url,'_blank');
+  window.location.href=url;
 }
 
 function renderAll(){
